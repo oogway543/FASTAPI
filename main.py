@@ -6,7 +6,7 @@ from sqlite3 import Connection
 
 app = FastAPI()
 
-def create_connection(db_file:str)-> Connection | None:
+def create_connection(db_file:str) -> Connection | None:
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -40,9 +40,20 @@ def insert_project(conn:Connection, project:tuple[str,float,float]):
     cursor.execute(sql,project)
     conn.commit()
 
+def select_all_tasks(conn:Connection,count:int):
+    sql = f"""
+        SELECT  * FROM iot1
+        ORDER by date DESC
+        LIMIT {count}
+    """
+    cursor = conn.cursor()
+    cursor.execute(sql)
+    rows = cursor.fetchall()
+    return rows
+
 @app.get("/")
 def read_root():
-    return {"Hello": "oogway"}
+    return {"Hello": "robert"}
 
 @app.get("/items/{item_id}")
 async def read_item1(item_id:int):
@@ -62,3 +73,13 @@ async def read_item(time:str = datetime.now().strftime("%Y%m%d %H:%M:%S"),light:
         "光線":light,
         "溫度":temperature
     }
+
+#query parameter
+@app.get("/iot_json/{item_count}")
+async def read_item2(item_count:int):
+    conn = create_connection('data.db')
+    if conn is not None:
+        create_table(conn)
+        rows = select_all_tasks(conn, item_count)            
+        conn.close()
+        return rows
