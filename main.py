@@ -6,7 +6,7 @@ from sqlite3 import Connection
 
 app = FastAPI()
 
-def create_connection(db_file:star)-> Connection | None:
+def create_connection(db_file:str)-> Connection | None:
     conn = None
     try:
         conn = sqlite3.connect(db_file)
